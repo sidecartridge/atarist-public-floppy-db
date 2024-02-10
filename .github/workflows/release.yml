@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: [ "3.10" ]
+        include:
+          - os: ubuntu-latest
+            catalog_name: catalog.txt
+    steps:  
+    - name: Checkout the code
+      uses: actions/checkout@v3
+  
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Process the CRC32 of the images
+      run: |
+        set -e
+        python process_crc32.py
+      shell: bash
+  
+    - name: Upload catalog.txt file
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ${{ matrix.catalog_name }}
+        asset_name: ${{ matrix.catalog_name }}
+        tag: ${{ github.ref }}
+        overwrite: true
+    - name: Upload catalog.txt file to latest
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ${{ matrix.catalog_name }}
+        asset_name: ${{ matrix.catalog_name }}
+        tag: latest
+        overwrite: true

@@ -1,0 +1,2 @@
+"Pacmania STE 2013";"http://ataristdb.sidecartridge.com/MISC/PACMANIA_STE.st"
+"The Great Giana Sisters STE 2014";"http://ataristdb.sidecartridge.com/MISC/GIANA_SISTERS_STE.ST"
