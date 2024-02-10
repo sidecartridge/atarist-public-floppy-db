@@ -1,1 +1,1 @@
-"The Silly Demo by @Logronoide 2023";"http://ataristdb.sidecartridge.com/MISC/PACMANIA_STE.st"
+"The Silly Demo by @Logronoide 2023";"http://ataristdb.sidecartridge.com/MISC/SILLYDEMO.ST"
