@@ -20,4 +20,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Process the CRC32 of the images
-      run: python process_crc32.py
+      run: |
+        set -e
+        python process_crc32.py
+      shell: bash

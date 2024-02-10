@@ -1,3 +1,0 @@
-"Pacmania STE 2013";"HOMEBREW_GAMES";"http://ataristdb.sidecartridge.com/MISC/PACMANIA_STE.st";"35A2AE70"
-"The Great Giana Sisters STE 2014";"HOMEBREW_GAMES";"http://ataristdb.sidecartridge.com/MISC/GIANA_SISTERS_STE.ST";"0219917A"
-"The Silly Demo by @Logronoide 2023";"CRACKTROS";"http://ataristdb.sidecartridge.com/MISC/PACMANIA_STE.st";"35A2AE70"

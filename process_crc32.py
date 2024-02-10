@@ -1,4 +1,5 @@
 import os
+import sys
 import binascii
 import csv
 import urllib.request
@@ -17,8 +18,10 @@ def download_file(url, filename):
             with open(filename, "wb") as file:
                 file.write(content)
         print(f"+- File '{filename}' downloaded successfully.")
+        return True
     except urllib.error.URLError as e:
         print(f"+- Error downloading the file: {e}")
+        return False
 
 
 def delete_file(filename):
@@ -62,7 +65,8 @@ def process_directory(directory_path):
                             print(f"+- Downloading {name} from {url}")
                             # Now download the file to the local directory using the url parameter
                             # and calculate the CRC32
-                            download_file(url, "tmpfile.st")
+                            if not download_file(url, "tmpfile.st"):
+                                return False
                             crc32 = calculate_crc32("tmpfile.st")
                             print(f"+- CRC32: {crc32:08X}")
                             delete_file("tmpfile.st")
@@ -86,4 +90,8 @@ def save_results(results):
 if __name__ == "__main__":
     directory_path = "."  # replace with your directory path
     results = process_directory(directory_path)
-    save_results(results)
+    if results == False:  # Check if process_directory returned False
+        print("+- Error: A file download failed. Exiting program.")
+        sys.exit(1)  # Exit the program with an error code
+    else:
+        save_results(results)
