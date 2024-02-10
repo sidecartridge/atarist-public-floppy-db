@@ -78,12 +78,15 @@ def process_directory(directory_path):
 
 
 def save_results(results):
+    # Sort results by name (first element of each tuple) alphabetically
+    sorted_results = sorted(results, key=lambda x: x[0])
+
     with open("catalog.txt", "w", newline="") as f:
         writer = csv.writer(
             f, delimiter=";", quoting=csv.QUOTE_ALL
         )  # Specify semicolon as delimiter
 
-        for row in results:
+        for row in sorted_results:
             writer.writerow(row)
 
 
