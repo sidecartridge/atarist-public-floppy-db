@@ -77,8 +77,8 @@ Please ensure you have the following prerequisites before proceeding:
 ## Resources 
 
 - [Sidecart ROM Emulator website](https://sidecartridge.com)
-- [Sidecart Raspberry Pico firmware](https://github.com/diegoparrilla/atarist-sidecart-raspberry-pico) - Where the second phase of the Sidecart ROM Emulator firmware evolution unfolds.
-- [Sidecart Floppy Emulator](https://github.com/diegoparrilla/atarist-sidecart-floppy-emulator) - The firmware with the floppy emulation functionality.
+- [Sidecart Raspberry Pico firmware](https://github.com/sidecartridge/atarist-sidecart-raspberry-pico) - Where the second phase of the Sidecart ROM Emulator firmware evolution unfolds.
+- [Sidecart Floppy Emulator](https://github.com/sidecartridge/atarist-sidecart-floppy-emulator) - The firmware with the floppy emulation functionality.
 
 ## License
 
