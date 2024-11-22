@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+
+import os
+import binascii
+import csv
+import sys
+
+
+def calculate_crc32(file_path):
+    """
+    Calculate the CRC32 of a file.
+    """
+    prev_crc = 0
+    with open(file_path, "rb") as f:
+        while True:
+            chunk = f.read(8192)  # Read in 8k chunks
+            if not chunk:
+                break
+            prev_crc = binascii.crc32(chunk, prev_crc)
+    return prev_crc & 0xFFFFFFFF  # Ensure it's a 32-bit value
+
+
+def check_and_update_crc32(image_path, csv_file="images_crc32.csv"):
+    """
+    Check if the CRC32 of an image exists in the CSV file. If not, add it.
+    Returns the name of the existing image if found, otherwise an empty string.
+    """
+    image_crc32 = calculate_crc32(image_path)
+    image_crc32_hex = f"{image_crc32:08X}"
+    existing_image_name = ""
+
+    # Read the existing entries in the CSV file
+    entries = []
+    if os.path.exists(csv_file):
+        with open(csv_file, "r", newline="") as f:
+            reader = csv.reader(f, delimiter=";", quoting=csv.QUOTE_ALL)
+            for row in reader:
+                if len(row) >= 2:
+                    entries.append(row)
+                    if row[1] == image_crc32_hex:
+                        existing_image_name = row[0]
+
+    # If an existing entry is found, return the image name
+    if existing_image_name:
+        return existing_image_name
+
+    # Otherwise, add the new entry
+    entries.append([image_path, image_crc32_hex])
+    with open(csv_file, "w", newline="") as f:
+        writer = csv.writer(f, delimiter=";", quoting=csv.QUOTE_ALL)
+        writer.writerows(entries)
+
+    # Return empty string if no match was found
+    return ""
+
+
+if __name__ == "__main__":
+    # Check if the image path is provided
+    if len(sys.argv) < 2:
+        print("Usage: python calc_crc32.py <image_path>")
+        sys.exit(1)
+
+    # Get the image path from arguments
+    image_path = sys.argv[1]
+
+    # Check if the file exists
+    if not os.path.isfile(image_path):
+        print(f"Error: File not found: {image_path}")
+        sys.exit(1)
+
+    # Check the CRC32 and update the CSV
+    result = check_and_update_crc32(image_path)
+    if result:
+        print(result)
+    else:
+        print(image_path)
+
