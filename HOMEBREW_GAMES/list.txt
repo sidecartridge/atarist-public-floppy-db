@@ -1,5 +1,0 @@
-"Detonator Silly Venture 2023WE";"http://ataristdb.sidecartridge.com/MISC/DETONATOR_SILLY_VENTURE_2023WE.ST"
-"Nano Cave Silly Venture 2023wE";"http://ataristdb.sidecartridge.com/MISC/NANO_CAVE_SILLY_VENTURE_2023WE.ST"
-"Pacmania STE 2013";"http://ataristdb.sidecartridge.com/MISC/PACMANIA_STE.st"
-"Randominer Silly Venture 2023WE";"http://ataristdb.sidecartridge.com/MISC/RANDOMINER_SILLY_VENTURE_2023WE.ST"
-"The Great Giana Sisters STE 2014";"http://ataristdb.sidecartridge.com/MISC/GIANA_SISTERS_STE.ST"
