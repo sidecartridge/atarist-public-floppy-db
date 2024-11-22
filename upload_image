@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+
+import boto3
+import os
+import sys
+
+
+def upload_file_to_s3(local_file, bucket, s3_prefix):
+    """
+    Upload a single file to S3 under a specified prefix.
+    """
+    s3 = boto3.client("s3")
+
+    # Ensure the file exists locally
+    if not os.path.isfile(local_file):
+        print(f"Error: File '{local_file}' does not exist.")
+        sys.exit(1)
+
+    # Extract the filename and construct the S3 path
+    filename = os.path.basename(local_file)
+    s3_path = os.path.join(s3_prefix, filename).replace("\\", "/")
+
+    try:
+        # Upload the file to S3
+        s3.upload_file(local_file, bucket, s3_path)
+        print(f"Uploaded '{local_file}' to 's3://{bucket}/{s3_path}'")
+    except Exception as e:
+        print(f"Error uploading file: {e}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        print("Usage: upload_image <local_file> <s3_prefix>")
+        sys.exit(1)
+
+    # Get the command-line arguments
+    local_file = sys.argv[1]
+    bucket_name = "ataristdb.sidecartridge.com"
+    s3_prefix = sys.argv[2]
+
+    # Upload the file
+    upload_file_to_s3(local_file, bucket_name, s3_prefix)

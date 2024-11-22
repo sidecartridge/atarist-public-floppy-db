@@ -1,0 +1,201 @@
+#!/usr/bin/env python3
+
+import boto3
+import csv
+import io
+import sys
+from datetime import datetime
+
+# S3 configuration
+BUCKET_NAME = 'ataristdb.sidecartridge.com'
+PREFIX = 'db/'  # Add the folder prefix here
+
+def download_csv_from_s3(bucket_name, file_name_with_prefix):
+    """
+    Download a CSV file from S3 and return its content as a string.
+    """
+    s3 = boto3.client('s3')
+    response = s3.get_object(Bucket=bucket_name, Key=file_name_with_prefix)
+    return response['Body'].read().decode('utf-8')
+
+def parse_csv(csv_content, date_parser=False):
+    """
+    Parse CSV content and return it as a list of dictionaries for easy processing.
+    """
+    parsed_data = []
+    csv_reader = csv.reader(io.StringIO(csv_content), delimiter=';')
+    
+    for row in csv_reader:
+        if len(row) >= 6:  # Ensure there are enough columns
+            # Validate the "date" field
+            date_value = row[2]
+            if date_parser:
+                try:
+                    # Attempt to parse the date to ensure it's valid
+                    datetime.strptime(date_value, "%Y/%m/%d")
+                except (ValueError, TypeError):
+                    # If invalid, set the default date
+                    date_value = "1900/01/01"
+
+            # Append the processed row to the parsed data
+            parsed_data.append({
+                "title": row[0],
+                "value1": row[1],
+                "date": date_value,
+                "value3": row[3],
+                "category": row[4],
+                "file_path": row[5]
+            })
+
+    return parsed_data
+
+def write_csv_to_string(data):
+    """
+    Convert a list of dictionaries back to a CSV string.
+    """
+    output = io.StringIO()
+    csv_writer = csv.writer(output, delimiter=';', quoting=csv.QUOTE_ALL)  # Enable quoting for all fields
+    
+    for entry in data:
+        csv_writer.writerow([
+            entry["title"],
+            entry["value1"],
+            entry["date"],
+            entry["value3"],
+            entry["category"],
+            entry["file_path"]
+        ])
+    
+    return output.getvalue()
+
+
+def upload_csv_to_s3(bucket_name, file_name_with_prefix, csv_content):
+    """
+    Upload a CSV string to S3.
+    """
+    s3 = boto3.client('s3')
+    s3.put_object(Bucket=bucket_name, Key=file_name_with_prefix, Body=csv_content)
+
+def backup_file_csv_in_s3(bucket_name, file_name_with_prefix):
+    """
+    Create a backup of a remote CSV file in S3 by appending ".bak" to its name.
+    """
+    s3 = boto3.client('s3')
+
+    # Determine the backup file name
+    backup_file_name_with_prefix = file_name_with_prefix + ".bak"
+
+    try:
+        # Download the original file
+        print(f"Downloading original file: {file_name_with_prefix}")
+        response = s3.get_object(Bucket=bucket_name, Key=file_name_with_prefix)
+        original_content = response['Body'].read()
+
+        # Upload the original file content as the backup file
+        print(f"Uploading backup file: {backup_file_name_with_prefix}")
+        s3.put_object(Bucket=bucket_name, Key=backup_file_name_with_prefix, Body=original_content)
+
+        print(f"Backup created successfully: {backup_file_name_with_prefix}")
+    except Exception as e:
+        print(f"Error creating backup: {e}")
+        raise
+
+
+
+def main():
+    # Check if arguments are passed
+    if len(sys.argv) < 4:
+        print("Usage: python append_floppy.py <title> <file_path> <category>")
+        sys.exit(1)
+
+    # Get title, file_path, and category from arguments
+    title = sys.argv[1]
+    file_path = sys.argv[2]
+    category = sys.argv[3]
+
+    # Generate the file name: first letter of title (lowercase) + .csv
+    file_name = title[0].lower() + ".csv"
+    file_name_with_prefix = PREFIX + file_name
+    print(f"Generated file name with prefix: {file_name_with_prefix}")
+
+    # Step 1: Download the CSV file from S3
+    print(f"Downloading {file_name_with_prefix} from S3...")
+    try:
+        csv_content = download_csv_from_s3(BUCKET_NAME, file_name_with_prefix)
+    except Exception as e:
+        print(f"Error downloading file: {e}")
+        sys.exit(1)
+
+    print("Creating backup...")
+    backup_file_csv_in_s3(BUCKET_NAME, file_name_with_prefix)
+
+    # Step 2: Parse the CSV content
+    print("Parsing CSV content...")
+    data_alphabet = parse_csv(csv_content)
+
+    # Step 3: Download the CSV file from S3 with what's new
+    print("Downloading /db/_.csv from S3...")
+    try:
+        csv_content = download_csv_from_s3(BUCKET_NAME, PREFIX + "_.csv")
+    except Exception as e:
+        print(f"Error downloading file: {e}")
+        sys.exit(1)
+
+    print("Creating backup...")
+    backup_file_csv_in_s3(BUCKET_NAME, PREFIX + "_.csv")
+
+    # Step 4: Parse the CSV content
+    print("Parsing CSV content...")
+    data_whatsnew = parse_csv(csv_content, date_parser=True)
+    
+    # The new entry so take the current date
+    current_date = datetime.now().strftime("%Y/%m/%d")
+    new_entry = {
+        "title": title,
+        "value1": "0",
+        "date": current_date,
+        "value3": "",
+        "category": category,
+        "file_path": file_path
+    }
+
+    # Step 5: Add the new entry to the lists
+    data_alphabet.append(new_entry)
+    data_whatsnew.append(new_entry)
+
+    # Step 6: Sort the data_alphabet list by title ignoring case
+    data_alphabet.sort(key=lambda x: x["title"].lower())
+
+    # Step 7: Sort the data_whatsnew list by the field date newest to oldest
+    try:
+        data_whatsnew.sort(
+            key=lambda x: datetime.strptime(x.get("date", "1900/01/01"), "%Y/%m/%d"),
+            reverse=True
+        )
+    except Exception as e:
+        print(f"Error during sorting: {e}")
+
+    # Step 8: Convert the lists back to CSV format
+    print("Converting data to CSV format...")
+    csv_alphabet = write_csv_to_string(data_alphabet)
+    csv_whatsnew = write_csv_to_string(data_whatsnew)
+
+    # Step 9: Upload the updated CSV files back to S3
+    print("Uploading updated files to S3...")
+    # upload_csv_to_s3(BUCKET_NAME, file_name_with_prefix, csv_alphabet)
+    # upload_csv_to_s3(BUCKET_NAME, PREFIX + "_.csv", csv_whatsnew)
+    print("Update completed successfully.")
+
+    # Append new_entry to the file images.log
+    with open("images.log", "a") as f:
+        f.write(f'"{title}";"{current_date}";"{category}";"{file_path}"\n')
+
+
+
+    # print("Updated data:")
+    # # Print the updated csv content
+    # print(csv_alphabet)
+    # print(csv_whatsnew)
+
+if __name__ == "__main__":
+    main()
