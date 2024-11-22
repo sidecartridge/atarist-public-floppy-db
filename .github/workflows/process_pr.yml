@@ -1,0 +1,74 @@
+name: Process Pull Request
+
+on:
+  pull_request:
+    types: [opened, edited, reopened]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Needed to push changes
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install boto3
+
+      - name: Parse Pull Request Description
+        uses: actions/github-script@v6
+        id: parse_pr
+        with:
+          script: |
+            const prBody = context.payload.pull_request.body;
+      
+            const filenameMatch = prBody.match(/^Filename:\s*(.+)$/m);
+            const nameMatch = prBody.match(/^Name:\s*(.+)$/m);
+            const categoryMatch = prBody.match(/^Category:\s*(.+)$/m);
+      
+            if (!filenameMatch) throw new Error('Filename not found or invalid in PR description.');
+            if (!nameMatch) throw new Error('Name not found or invalid in PR description.');
+            if (!categoryMatch) throw new Error('Category not found or invalid in PR description.');
+      
+            core.setOutput('filename', filenameMatch[1].trim());
+            core.setOutput('title', nameMatch[1].trim());
+            core.setOutput('category', categoryMatch[1].trim());
+        
+      - name: Comment on Pull Request
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.issues.createComment({
+              issue_number: ${{ github.event.pull_request.number }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'The pull request description is missing required fields or contains errors. Please ensure all fields are present and correctly formatted.'
+            })
+
+      - name: Stop Job on Failure
+        if: failure()
+        run: |
+          echo "Stopping job due to failure in parsing."
+          exit 1  # This will cause the job to fail and prevent further steps from running
+          
+      - name: Display Parsed Data
+        run: |
+          echo "Filename: ${{ steps.parse_pr.outputs.filename }}"
+          echo "Title: ${{ steps.parse_pr.outputs.title }}"
+          echo "Category: ${{ steps.parse_pr.outputs.category }}"
+
+      - name: Check if the Floppy Image file exists in the repository
+        run: |
+          if [ ! -f ${{ steps.parse_pr.outputs.filename }} ]; then
+            echo "The Floppy Image file does not exist in the repository."
+            exit 1
+          fi
