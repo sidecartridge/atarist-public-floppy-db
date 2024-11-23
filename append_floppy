@@ -9,6 +9,7 @@ from datetime import datetime
 # S3 configuration
 BUCKET_NAME = 'ataristdb.sidecartridge.com'
 PREFIX = 'db/'  # Add the folder prefix here
+PREFIX_IMAGE = 'MISC/' # Add the folder prefix here
 
 def download_csv_from_s3(bucket_name, file_name_with_prefix):
     """
@@ -124,6 +125,9 @@ def main():
     title = sys.argv[1]
     file_path = sys.argv[2]
     category = sys.argv[3]
+
+    # Append the image prefix to the file_path
+    file_path = PREFIX_IMAGE + file_path
 
     # Generate the file name: first letter of title (lowercase) + .csv
     file_name = title[0].lower() + ".csv"
