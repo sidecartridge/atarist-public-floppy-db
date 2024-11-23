@@ -27,27 +27,39 @@ def parse_csv(csv_content, date_parser=False):
     
     for row in csv_reader:
         if len(row) >= 6:  # Ensure there are enough columns
-            # Validate the "date" field
-            date_value = row[2]
+            # Validate the "timestamp" field
+            timestamp_value = row[2]
             if date_parser:
                 try:
-                    # Attempt to parse the date to ensure it's valid
-                    datetime.strptime(date_value, "%Y/%m/%d")
-                except (ValueError, TypeError):
-                    # If invalid, set the default date
-                    date_value = "1900/01/01"
+                    # Convert to an integer epoch if valid
+                    timestamp_value = int(timestamp_value)
+                except ValueError:
+                    # Default to 0 if invalid
+                    timestamp_value = 0
 
             # Append the processed row to the parsed data
             parsed_data.append({
                 "title": row[0],
                 "value1": row[1],
-                "date": date_value,
+                "timestamp": timestamp_value,
                 "value3": row[3],
                 "category": row[4],
                 "file_path": row[5]
             })
 
     return parsed_data
+
+def date_to_epoch(date_str):
+    """
+    Convert a date string (YYYY/MM/DD) to epoch time (seconds since Unix epoch).
+    """
+    try:
+        dt = datetime.strptime(date_str, "%Y/%m/%d")
+        return int(dt.timestamp())
+    except ValueError:
+        # Handle invalid date
+        return 0
+
 
 def write_csv_to_string(data):
     """
@@ -60,7 +72,7 @@ def write_csv_to_string(data):
         csv_writer.writerow([
             entry["title"],
             entry["value1"],
-            entry["date"],
+            "" if entry["timestamp"] == 0 else entry["timestamp"],
             entry["value3"],
             entry["category"],
             entry["file_path"]
@@ -148,12 +160,12 @@ def main():
     print("Parsing CSV content...")
     data_whatsnew = parse_csv(csv_content, date_parser=True)
     
-    # The new entry so take the current date
-    current_date = datetime.now().strftime("%Y/%m/%d")
+   # The new entry with the current timestamp
+    current_timestamp = int(datetime.now().timestamp())
     new_entry = {
         "title": title,
         "value1": "0",
-        "date": current_date,
+        "timestamp": current_timestamp,
         "value3": "",
         "category": category,
         "file_path": file_path
@@ -166,14 +178,11 @@ def main():
     # Step 6: Sort the data_alphabet list by title ignoring case
     data_alphabet.sort(key=lambda x: x["title"].lower())
 
-    # Step 7: Sort the data_whatsnew list by the field date newest to oldest
-    try:
-        data_whatsnew.sort(
-            key=lambda x: datetime.strptime(x.get("date", "1900/01/01"), "%Y/%m/%d"),
-            reverse=True
-        )
-    except Exception as e:
-        print(f"Error during sorting: {e}")
+    # Step 7: Sort the data_whatsnew list by timestamp (newest to oldest)
+    data_whatsnew.sort(
+        key=lambda x: x.get("timestamp", 0),
+        reverse=True
+    )
 
     # Step 8: Convert the lists back to CSV format
     print("Converting data to CSV format...")
@@ -182,13 +191,13 @@ def main():
 
     # Step 9: Upload the updated CSV files back to S3
     print("Uploading updated files to S3...")
-    # upload_csv_to_s3(BUCKET_NAME, file_name_with_prefix, csv_alphabet)
-    # upload_csv_to_s3(BUCKET_NAME, PREFIX + "_.csv", csv_whatsnew)
+    upload_csv_to_s3(BUCKET_NAME, file_name_with_prefix, csv_alphabet)
+    upload_csv_to_s3(BUCKET_NAME, PREFIX + "_.csv", csv_whatsnew)
     print("Update completed successfully.")
 
     # Append new_entry to the file images.log
     with open("images.log", "a") as f:
-        f.write(f'"{title}";"{current_date}";"{category}";"{file_path}"\n')
+        f.write(f'"{title}";"{current_timestamp}";"{category}";"{file_path}"\n')
 
 
 
