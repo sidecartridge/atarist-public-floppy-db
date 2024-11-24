@@ -32,21 +32,21 @@ First, you need to have a GitHub account. If you don't have one, you can create 
 
 2. Go to your forked repository and click on the "Add file" button and select "Upload files".
 
-3. Drag and drop the ROM image file to the file selection area.
+3. Drag and drop the Floppy image file to the file selection area.
 
-4. In the `Commit changes` section, simply add the name of the ROM. No need for a description or any other information at this point.
+4. In the `Commit changes` section, simply add the name of the Floppy Image. No need for a description or any other information at this point.
 
 5. Select the "Create a new branch for this commit and start a pull request" option.
 
 6. Enter a name for the branch and click on the "Propose changes" button.
 
-7. On the next page, click on `compare across forks` and select the original repository as the base repository `sidecartridge/atarist-public-floppy-db` and the `main` branch at the left side, and the branch you just created as the head repository at the right side.
+7. **IMPORTANT: On the next page, click on `compare across forks` and select the original repository as the base repository `sidecartridge/atarist-public-floppy-db` and the `main` branch at the left side, and the branch you just created as the head repository at the right side.**
 
 8. On the next page, **edit the description in the following fields**:
     - Filename: Enter the exact filename of the Floppy image file you uploaded. Please match the case and extension of the file. Only .ST files are allowed.
     - Name: Enter the name of the Flopy Image in human readable format. It must be short and descriptive.
     - Description: Enter a brief description of the Floppy Image.
-    - Type: Enter the type of the Floppy Image. It can only be `CRACKTROS`, `DEMOS`, `HOMEBREW`,  `INTROS`.
+    - Type: Enter the type of the Floppy Image. Recommended values are `DEMOS`, `GRAPHICS`, `MUSIC`,  `GAMES`, `INTROS` and `HOMEBREW_GAMES`. But another descriptive type can be used. Uppercase, please.
 
 9. Click on the "Create pull request" button.
 
@@ -58,16 +58,14 @@ First, you need to have a GitHub account. If you don't have one, you can create 
 
 ## How to create a Pull Request (PR) from the command line
 
-If you are familiar with Git and the command line, you can also create a pull request from your local machine. No need to explain how to do it here, as you probably already know how to do it. Just make sure to follow the same steps as above and include the ROM image file in the pull request.
+If you are familiar with Git and the command line, you can also create a pull request from your local machine. No need to explain how to do it here, as you probably already know how to do it. Just make sure to follow the same steps as above and include the Floppy image file in the pull request.
 
 ## Disclaimer
 
 The Floppy images provided in this database are for educational and archival purposes only. The repository owner does not condone or support piracy in any form. The Floppy images are provided as-is and without any warranty. Use at your own risk.
-
 ## License
 
 See the [LICENSE](LICENSE) file for license rights and limitations.
-
 
 ## Resources 
 
