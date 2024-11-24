@@ -10,7 +10,7 @@ Name: The Floppy Image Title
 
 Description: A short description of the Floppy Image and what it is about.
 
-Category: A single word describing the category. Ex: HOMBREW, DEMO, GAME, etc.
+Category: A single word describing the category. Recommended values are `DEMOS`, `GRAPHICS`, `MUSIC`,  `GAMES`, `INTROS` and `HOMEBREW_GAMES`. But another descriptive type can be used. Uppercase, please.
 
 ---
 
@@ -27,7 +27,7 @@ Category: A single word describing the category. Ex: HOMBREW, DEMO, GAME, etc.
   - The **Name** should be the title of the game, must be unique, and should not contain any special characters. It will be used as the name to sort and index in the database.
   - The **Filename** should be the name of the Floppy image file. Please match the case exactly.
   - The **Description** should be a brief summary of the program. It's optional.
-  - The **Category** should be an uppercase single word describing the category of the floppy image.
+  - The **Category** should be an uppercase single word describing the category of the floppy image. Recommended values are `DEMOS`, `GRAPHICS`, `MUSIC`,  `GAMES`, `INTROS` and `HOMEBREW_GAMES`. But another descriptive type can be used.
 
 - **Processing and Upload**:
   - Upon approval, your Floppy image will be **uploaded to the public database**.
