@@ -10,8 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write  # Needed to push changes
-      issues: write          # Needed to comment on issues and PRs
-      pull-requests: write   # Needed to comment on PRs
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3
@@ -73,21 +71,6 @@ jobs:
             echo "Error: Category is empty."
             exit 1
           fi
-
-      - name: Comment on Pull Request
-        if: failure()
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const issueNumber = context.payload.pull_request.number;
-            const errorMessage = `Validation failed during workflow execution.\n\nPlease address the following issues:\n${{ steps.validate_fields.outputs.error }}`;
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              body: errorMessage,
-            });
-  
 
       - name: Stop Job on Failure
         if: failure()
