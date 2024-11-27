@@ -68,7 +68,8 @@ jobs:
 
       - name: Check if the Floppy Image file exists in the repository
         run: |
-          if [ ! -f ${{ steps.parse_pr.outputs.filename }} ]; then
+          if [ ! -f "${{ steps.parse_pr.outputs.filename }}" ]; then
             echo "The Floppy Image file does not exist in the repository."
             exit 1
           fi
+        
