@@ -139,7 +139,15 @@ jobs:
             git add images.log
             git commit -m "Add ${{steps.parse_pr.outputs.title}}"
             git push
-  
+
+      - name: Discord notification
+        if: steps.get_pr.outputs.pr_number != ''
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: "The floppy image \"${{ steps.parse_pr.outputs.title }}\" (category: ${{ steps.parse_pr.outputs.category }}) has been successfully processed and added to the database."
+
       - name: Notify Maintainers
         if: failure() && steps.get_pr.outputs.pr_number != ''
         uses: actions/github-script@v6
