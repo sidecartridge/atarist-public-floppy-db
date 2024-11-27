@@ -52,8 +52,8 @@ jobs:
             exit 1
           fi
           FILENAME="${{ steps.parse_pr.outputs.filename }}"
-          INVALID_CHARS='[!@#$%^&*()+=\[\]{}|;:\'\",<>/? ]'
-          if [[ "$FILENAME" =~ $INVALID_CHARS ]]; then
+          INVALID_CHARS="[!@#$%^&*()+=\[\]{}|;:'\",<>/? ]"
+          if echo "$FILENAME" | grep -qE "$INVALID_CHARS"; then
             echo "Invalid characters detected in filename: $FILENAME"
             exit 1
           fi
