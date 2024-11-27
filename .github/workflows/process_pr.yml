@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write  # Needed to push changes
+      issues: write          # Needed to comment on issues and PRs
+      pull-requests: write   # Needed to comment on PRs
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3
