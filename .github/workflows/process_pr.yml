@@ -41,24 +41,57 @@ jobs:
             core.setOutput('filename', filenameMatch[1].trim());
             core.setOutput('title', nameMatch[1].trim());
             core.setOutput('category', categoryMatch[1].trim());
-        
+
+      - name: Validate Filename
+        id: validate_filename
+        run: |
+          # Validate Filename
+          FILENAME="${{ steps.parse_pr.outputs.filename }}"
+          if [[ -z "$FILENAME" ]]; then
+            echo "Error: Filename is empty."
+            exit 1
+          fi
+          FILENAME="${{ steps.parse_pr.outputs.filename }}"
+          INVALID_CHARS='[!@#$%^&*()+=\[\]{}|;:\'",<>/? ]'
+          if [[ "$FILENAME" =~ $INVALID_CHARS ]]; then
+            echo "Invalid characters detected in filename: $FILENAME"
+            exit 1
+          fi
+
+          # Validate Title
+          TITLE="${{ steps.parse_pr.outputs.title }}"
+          if [[ -z "$TITLE" ]]; then
+            echo "Error: Title is empty."
+            exit 1
+          fi
+
+          # Validate Category
+          CATEGORY="${{ steps.parse_pr.outputs.category }}"
+          if [[ -z "$CATEGORY" ]]; then
+            echo "Error: Category is empty."
+            exit 1
+          fi
+
       - name: Comment on Pull Request
         if: failure()
         uses: actions/github-script@v6
         with:
           script: |
-            github.issues.createComment({
-              issue_number: ${{ github.event.pull_request.number }},
+            const issueNumber = context.payload.pull_request.number;
+            const errorMessage = `Validation failed during workflow execution.\n\nPlease address the following issues:\n${{ steps.validate_fields.outputs.error }}`;
+            await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'The pull request description is missing required fields or contains errors. Please ensure all fields are present and correctly formatted.'
-            })
+              issue_number: issueNumber,
+              body: errorMessage,
+            });
+  
 
       - name: Stop Job on Failure
         if: failure()
         run: |
           echo "Stopping job due to failure in parsing."
-          exit 1  # This will cause the job to fail and prevent further steps from running
+          exit 1
           
       - name: Display Parsed Data
         run: |
@@ -69,7 +102,10 @@ jobs:
       - name: Check if the Floppy Image file exists in the repository
         run: |
           if [ ! -f "${{ steps.parse_pr.outputs.filename }}" ]; then
-            echo "The Floppy Image file does not exist in the repository."
+            echo "Error: The file '${{ steps.parse_pr.outputs.filename }}' does not exist in the repository."
             exit 1
           fi
-        
+
+      - name: Continue with Further Actions
+        if: success()
+        run: echo "All validations passed. Now wait for the approval of the pull request."

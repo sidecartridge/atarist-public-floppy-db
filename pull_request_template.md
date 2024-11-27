@@ -4,7 +4,7 @@ Thank you for your contribution! Please fill out the following fields to help us
 
 ---
 
-Filename: your-file-name-image.st
+Filename: your-file-name-image.st (Please read the guidelines below)
 
 Name: The Floppy Image Title
 
@@ -21,6 +21,7 @@ Category: A single word describing the category. Recommended values are `DEMOS`,
   - Only .ST files are accepted.
   - Please include the **binary file** with the floppy image in the **root folder** of the repository in your pull request.
   - The filename must **match exactly** (case-sensitive) the name specified in the **Filename** field above.
+  - The file name must not contain the following characters: `!@#$%^&*()+=[]{}|;:'",<>/?` and spaces. Use `-` or `_` instead.
 
 - **Fill Out the Fields**:
   - Please fill out the **Name** and **Category** fields above. The texts are there as placeholders.
