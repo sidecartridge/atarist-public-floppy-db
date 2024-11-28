@@ -146,7 +146,7 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master
         with:
-          args: "The floppy image \"${{ steps.parse_pr.outputs.title }}\" (category: ${{ steps.parse_pr.outputs.category }}) has been successfully processed and added to the database. You can download the file from: http://ataristdb.sidecartridge.com/MISC/${{ steps.parse_pr.outputs.filename }}"
+          args: "📢 The floppy image \"${{ steps.parse_pr.outputs.title }}\" (category: ${{ steps.parse_pr.outputs.category }}) has been successfully processed and added to the database. You can download the file from: http://ataristdb.sidecartridge.com/MISC/${{ steps.parse_pr.outputs.filename }}"
 
       - name: Notify Maintainers
         if: failure() && steps.get_pr.outputs.pr_number != ''
