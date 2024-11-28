@@ -51,10 +51,13 @@ jobs:
             echo "Error: Filename is empty."
             exit 1
           fi
-          FILENAME="${{ steps.parse_pr.outputs.filename }}"
           INVALID_CHARS="[!@#$%^&*()+=\[\]{}|;:'\",<>/? ]"
           if echo "$FILENAME" | grep -qE "$INVALID_CHARS"; then
             echo "Invalid characters detected in filename: $FILENAME"
+            exit 1
+          fi
+          if ! echo "$FILENAME" | grep -qiE "\.st$"; then
+            echo "Error: Filename must end with '.st' or '.ST'."
             exit 1
           fi
 
