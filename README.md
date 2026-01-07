@@ -6,7 +6,7 @@ This repository is a way to share with the community the floppy images that are 
 
 ## List of floppies available
 
-You can find the full list in the folder here: https://ataristdb.sidecartridge.com/db/*.csv
+You can find the full list in the folder here: http://ataristdb.sidecartridge.com/db/*.csv
 
 Where the asterisk is the first letter of the name of the floppy. The database is sharded by the first letter of the name of the floppy to allow the database to be easily parsed by the SidecarTridge Multi-device Floppy Database.
 
@@ -70,8 +70,8 @@ See the [LICENSE](LICENSE) file for license rights and limitations.
 ## Resources 
 
 - [Sidecartridge Multi-device website](https://sidecartridge.com)
-- [Sidecart Raspberry Pico firmware](https://github.com/sidecartridge/atarist-sidecart-raspberry-pico) - Where the second phase of the Sidecart ROM Emulator firmware evolution unfolds.
-- [Sidecart Floppy Emulator](https://github.com/sidecartridge/atarist-sidecart-floppy-emulator) - The firmware with the floppy emulation functionality.
+- [Sidecartridge Multi-device Booster](https://github.com/sidecartridge/rp2-booster-bootloader) - Where the second phase of the Sidecart ROM Emulator firmware evolution unfolds.
+- [Sidecart Multidrive Emulator](https://github.com/sidecartridge/md-drives-emulator) - The firmware with the hard disk and floppy emulation functionality.
 
 ## License
 
