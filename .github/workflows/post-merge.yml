@@ -82,16 +82,23 @@ jobs:
         id: parse_pr
         with:
           script: |
-            const prBody = process.env.PR_BODY;
-        
+            const prBody = process.env.PR_BODY || '';
+
             const filenameMatch = prBody.match(/^Filename:\s*(.+)$/m);
             const nameMatch = prBody.match(/^Name:\s*(.+)$/m);
             const categoryMatch = prBody.match(/^Category:\s*(.+)$/m);
 
-            if (!filenameMatch) throw new Error('Filename not found or invalid in PR description.');
-            if (!nameMatch) throw new Error('Name not found or invalid in PR description.');
-            if (!categoryMatch) throw new Error('Category not found or invalid in PR description.');
-        
+            const present = [filenameMatch, nameMatch, categoryMatch].filter(Boolean).length;
+            if (present === 0) {
+              // Not a floppy submission (e.g. a maintenance PR). Skip processing.
+              core.setOutput('is_floppy', 'false');
+              return;
+            }
+            if (present < 3) {
+              throw new Error('Incomplete floppy submission: Filename, Name and Category are all required.');
+            }
+
+            core.setOutput('is_floppy', 'true');
             core.setOutput('filename', filenameMatch[1].trim());
             core.setOutput('title', nameMatch[1].trim());
             core.setOutput('category', categoryMatch[1].trim());
@@ -99,12 +106,12 @@ jobs:
             PR_BODY: ${{ steps.get_pr.outputs.pr_body }}
 
       - name: Ensure Scripts are Executable
-        if: steps.get_pr.outputs.pr_number != ''
+        if: steps.parse_pr.outputs.is_floppy == 'true'
         run: |
           chmod +x ./append_floppy ./calc_crc32 ./upload_image
             
       - name: Calculate CRC32 of the floppy image
-        if: steps.get_pr.outputs.pr_number != ''
+        if: steps.parse_pr.outputs.is_floppy == 'true'
         id: calculate_crc32
         run: |
           # Run the CRC32 calculation and capture the output
@@ -115,7 +122,7 @@ jobs:
         
     
       - name: Update the database
-        if: steps.get_pr.outputs.pr_number != ''
+        if: steps.parse_pr.outputs.is_floppy == 'true'
         run: |
           ./append_floppy "${{ steps.parse_pr.outputs.title }}" "${{ env.crc32_value }}" "${{ steps.parse_pr.outputs.category }}"
         env:
@@ -123,7 +130,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
 
       - name: Upload the image if it does not exist
-        if: (steps.get_pr.outputs.pr_number != '') && (env.crc32_value == steps.parse_pr.outputs.filename)
+        if: (steps.parse_pr.outputs.is_floppy == 'true') && (env.crc32_value == steps.parse_pr.outputs.filename)
         run: |
           ./upload_image "${{ steps.parse_pr.outputs.filename }}" "MISC"
         env:
@@ -131,7 +138,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   
       - name: Delete the Floppy Image and remove it from the repository
-        if: steps.get_pr.outputs.pr_number != ''
+        if: steps.parse_pr.outputs.is_floppy == 'true'
         run: |
             rm "${{ steps.parse_pr.outputs.filename }}"
             git rm "${{ steps.parse_pr.outputs.filename }}"
@@ -139,18 +146,3 @@ jobs:
             git add images.log
             git commit -m "Add ${{steps.parse_pr.outputs.title}}"
             git push
-
-      - name: Notify Maintainers
-        if: failure() && steps.get_pr.outputs.pr_number != ''
-        uses: actions/github-script@v6
-        with:
-            github-token: ${{ secrets.GITHUB_TOKEN }}
-            script: |
-              const issueNumber = parseInt('${{ steps.get_pr.outputs.pr_number }}');
-        
-              await github.rest.issues.createComment({
-                issue_number: issueNumber,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: 'An error occurred while processing your Floppy image submission. Please check the repository logs for more details.'
-              });
