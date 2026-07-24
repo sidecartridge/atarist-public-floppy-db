@@ -1,2 +1,3 @@
 "Dotummin Vitsei Silly Venture 2023WE";"http://ataristdb.sidecartridge.com/MISC/SILLY_VENTURE_2023WE_INTROS_AND_DEMOS.ST"
 "Lady Glagla Silly Venture 2023WE";"http://ataristdb.sidecartridge.com/MISC/SILLY_VENTURE_2023WE_INTROS_AND_DEMOS.ST"
+"Syntax Terror by Delta Force - STNICCC 1990";"http://ataristdb.sidecartridge.com/DEMOS/DF_STERR.ST"
