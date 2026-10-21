@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Number of an already merged floppy PR to process again'
+        required: true
 
 jobs:
   process_merge:
