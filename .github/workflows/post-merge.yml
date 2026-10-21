@@ -48,7 +48,7 @@ jobs:
         run: |
           PARENT_COUNT=$(git show -s --format=%P HEAD | wc -w)
           echo "Parent count: $PARENT_COUNT"
-          if [ "$PARENT_COUNT" -gt 1 ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$PARENT_COUNT" -gt 1 ]; then
             echo "is_merge=true" >> $GITHUB_OUTPUT
           else
             echo "is_merge=false" >> $GITHUB_OUTPUT
@@ -65,12 +65,23 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const commit_sha = '${{ github.sha }}';
-            const prs = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              commit_sha: commit_sha,
-            });
+            const manualPr = '${{ github.event.inputs.pr_number }}';
+            let prs;
+            if (manualPr) {
+              const one = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: Number(manualPr),
+              });
+              prs = { data: [one.data] };
+            } else {
+              const commit_sha = '${{ github.sha }}';
+              prs = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                commit_sha: commit_sha,
+              });
+            }
             if (prs.data.length > 0) {
               const pr = prs.data[0];
               core.setOutput('pr_number', pr.number.toString());
