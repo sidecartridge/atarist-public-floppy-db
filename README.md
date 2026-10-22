@@ -46,7 +46,7 @@ First, you need to have a GitHub account. If you don't have one, you can create 
     - Filename: Enter the exact filename of the Floppy image file you uploaded. Please match the case and extension of the file. Only .ST files are allowed.
     - Name: Enter the name of the Flopy Image in human readable format. It must be short and descriptive.
     - Description: Enter a brief description of the Floppy Image.
-    - Type: Enter the type of the Floppy Image. Recommended values are `DEMOS`, `GRAPHICS`, `MUSIC`,  `GAMES`, `INTROS` and `HOMEBREW_GAMES`. But another descriptive type can be used. Uppercase, please.
+    - Type: Enter the type of the Floppy Image. Recommended values are `DEMOS`, `GRAPHICS`, `MUSIC`,  `GAMES`, `INTROS`, `HOMEBREW_GAMES` and `AI_GAMES` (games created mostly with AI tools; use `HOMEBREW_GAMES` for other new homebrew games). But another descriptive type can be used. Uppercase, please.
 
 9. Click on the "Create pull request" button.
 
